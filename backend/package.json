@@ -23,15 +23,21 @@
     "@trpc/server": "^10.45.2",
     "cors": "^2.8.5",
     "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1",
     "superjson": "^1.13.3",
     "trpc-playground": "^1.0.4",
     "zod": "^3.24.1"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
+    "@types/jsonwebtoken": "^9.0.7",
     "@types/lodash": "^4.17.14",
     "@types/node": "^22.10.5",
+    "@types/passport": "^1.0.17",
+    "@types/passport-jwt": "^4.0.1",
     "prisma": "^6.2.1"
   }
 }

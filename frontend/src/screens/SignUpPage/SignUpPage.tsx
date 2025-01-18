@@ -9,11 +9,16 @@ import { trpc } from '../../lib/trpc';
 import { withZodSchema } from 'formik-validator-zod';
 import { zSignUpTrpcInput } from '@your-ideas/backend/src/router/signUp/input';
 import { z } from 'zod';
+import Cookie from 'js-cookie';
+import { useNavigate } from 'react-router-dom';
+import { getAllIdeasRoute } from '../../lib/routes';
 
 export const SignUpPage = () => {
-  const [successMessageVisible, setSuccessMessageVisible] = useState(false);
+  const navigate = useNavigate();
+
   const [submittingError, setSubmittingError] = useState<string | null>(null);
 
+  const trpcContext = trpc.useContext();
   const signUp = trpc.signUp.useMutation();
 
   const formik = useFormik({
@@ -36,10 +41,12 @@ export const SignUpPage = () => {
     onSubmit: async (data) => {
       try {
         setSubmittingError(null)
-        await signUp.mutateAsync(data);
-        formik.resetForm();
-        setSuccessMessageVisible(true);
-        setTimeout(() => setSuccessMessageVisible(false), 3000);
+        const { token } = await signUp.mutateAsync(data);
+
+        Cookie.set('token', token, { expires: 99999 });
+        void trpcContext.invalidate();
+
+        navigate(getAllIdeasRoute());
       }
       catch (error) {
         if (error instanceof Object && 'message' in error && typeof error.message === 'string') {
@@ -64,10 +71,6 @@ export const SignUpPage = () => {
 
           {submittingError && (
             <Alert color="red">{submittingError}</Alert>
-          )}
-
-          {successMessageVisible && (
-            <Alert color="green">Все отлично</Alert>
           )}
 
           <Button loading={formik.isSubmitting}>Sign Up</Button>

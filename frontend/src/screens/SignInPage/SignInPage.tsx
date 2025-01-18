@@ -8,11 +8,16 @@ import { useFormik } from 'formik';
 import { trpc } from '../../lib/trpc';
 import { withZodSchema } from 'formik-validator-zod';
 import { zSignInTrpcInput } from '@your-ideas/backend/src/router/signIn/input';
+import Cookie from 'js-cookie';
+import { useNavigate } from 'react-router-dom';
+import { getAllIdeasRoute } from '../../lib/routes';
 
 export const SignInPage = () => {
-  const [successMessageVisible, setSuccessMessageVisible] = useState(false);
+  const navigate = useNavigate();
+
   const [submittingError, setSubmittingError] = useState<string | null>(null);
 
+  const trpcContext = trpc.useContext();
   const signIn = trpc.signIn.useMutation();
 
   const formik = useFormik({
@@ -21,10 +26,12 @@ export const SignInPage = () => {
     onSubmit: async (data) => {
       try {
         setSubmittingError(null)
-        await signIn.mutateAsync(data);
-        formik.resetForm();
-        setSuccessMessageVisible(true);
-        setTimeout(() => setSuccessMessageVisible(false), 3000);
+        const { token } = await signIn.mutateAsync(data);
+
+        Cookie.set('token', token, { expires: 99999 });
+        void trpcContext.invalidate();
+
+        navigate(getAllIdeasRoute());
       }
       catch (error) {
         if (error instanceof Object && 'message' in error && typeof error.message === 'string') {
@@ -35,7 +42,7 @@ export const SignInPage = () => {
   });
 
   return (
-    <Segment title="Sign Up">
+    <Segment title="Sign In">
       <form onSubmit={formik.handleSubmit}>
         <FormItems>
           <Input label="Nick" name="nick" formik={formik} />
@@ -47,10 +54,6 @@ export const SignInPage = () => {
 
           {submittingError && (
             <Alert color="red">{submittingError}</Alert>
-          )}
-
-          {successMessageVisible && (
-            <Alert color="green">Все отлично</Alert>
           )}
 
           <Button loading={formik.isSubmitting}>Sign Up</Button>

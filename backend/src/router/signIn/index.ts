@@ -1,6 +1,7 @@
 import { trpc } from '../../lib/trpc';
 import { zSignInTrpcInput } from './input';
 import { getPasswordHash } from '../../utils/getPasswordHash';
+import { signJWT } from '../../utils/signJWT';
 
 export const signInTrpcRoute = trpc.procedure.input(
   zSignInTrpcInput
@@ -16,5 +17,7 @@ export const signInTrpcRoute = trpc.procedure.input(
     throw new Error('Неправильный логин или пароль');
   }
 
-  return true;
+  const token = signJWT(user.id);
+
+  return { token };
 });

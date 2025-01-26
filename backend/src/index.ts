@@ -4,6 +4,7 @@ import { trpcRouter } from './router';
 import { applyTrpcToExpressApp } from './lib/trpc';
 import { AppContext, createAppContext } from './lib/ctx';
 import { applyPassportToExpressApp } from './lib/passport';
+import { env } from './lib/env';
 
 (async () => {
     let ctx: AppContext | null = null;
@@ -17,8 +18,8 @@ import { applyPassportToExpressApp } from './lib/passport';
         await applyPassportToExpressApp(app, ctx);
         await applyTrpcToExpressApp(app, ctx, trpcRouter);
 
-        app.listen(3000, () => {
-            console.log('listening... http://localhost:3000');
+        app.listen(env.PORT, () => {
+            console.log(`listening... http://localhost:${env.PORT}`);
         });
     }
     catch (error) {

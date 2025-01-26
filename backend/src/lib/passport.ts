@@ -2,13 +2,14 @@ import { Express } from 'express';
 import { AppContext } from './ctx';
 import { Passport } from 'passport';
 import { Strategy as JWTStrategy, ExtractJwt } from 'passport-jwt';
+import { env } from './env';
 
 export const applyPassportToExpressApp = (expressApp: Express, ctx: AppContext) => {
   const passport = new Passport();
 
   passport.use(
     new JWTStrategy({
-      secretOrKey: 'create-idea-secret-value',
+      secretOrKey: env.JWT_SECRET,
       jwtFromRequest: ExtractJwt.fromAuthHeaderWithScheme('Bearer'),
     }, async (jwtPayload: string, done) => {
       const user = await ctx.prisma.user

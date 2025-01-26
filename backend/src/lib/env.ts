@@ -7,6 +7,7 @@ config();
 const zEnv = z.object({
   PORT: z.string().trim().min(1),
   JWT_SECRET: z.string().trim().min(1),
+  PASSWORD_SALT: z.string().trim().min(1),
   DATABASE_URL: z.string().trim().min(1),
 });
 

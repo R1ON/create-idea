@@ -117,6 +117,9 @@ importers:
       js-cookie:
         specifier: ^3.0.5
         version: 3.0.5
+      lodash:
+        specifier: ^4.17.21
+        version: 4.17.21
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -142,6 +145,9 @@ importers:
       '@eslint/js':
         specifier: ^9.17.0
         version: 9.17.0
+      '@types/lodash':
+        specifier: ^4.17.14
+        version: 4.17.14
       '@types/react':
         specifier: ^18.3.18
         version: 18.3.18

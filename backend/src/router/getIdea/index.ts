@@ -8,6 +8,14 @@ export const getIdeaTrpcRoute = trpc.procedure.input(
     where: {
       nick: input.nick,
     },
+    include: {
+      author: {
+        select: {
+          id: true,
+          nick: true,
+        },
+      },
+    },
   });
 
   return { idea };

@@ -6,13 +6,10 @@ import { Segment } from '../../components/Segment';
 import { trpc } from '../../lib/trpc';
 import { zSignInTrpcInput } from '@your-ideas/backend/src/router/signIn/input';
 import Cookie from 'js-cookie';
-import { useNavigate } from 'react-router-dom';
-import { getAllIdeasRoute } from '../../lib/routes';
 import { useForm } from '../../lib/form';
+import { withPageWrapper } from '../../lib/withPageWrapper';
 
-export const SignInPage = () => {
-  const navigate = useNavigate();
-
+const SignInForm = () => {
   const trpcContext = trpc.useContext();
   const signIn = trpc.signIn.useMutation();
 
@@ -24,8 +21,6 @@ export const SignInPage = () => {
 
       Cookie.set('token', token, { expires: 99999 });
       void trpcContext.invalidate();
-
-      navigate(getAllIdeasRoute());
     },
   });
 
@@ -42,3 +37,7 @@ export const SignInPage = () => {
     </Segment>
   )
 }
+
+export const SignInPage = withPageWrapper({
+  redirectAuthorized: true,
+})(SignInForm);

@@ -1,39 +1,69 @@
+import { FormItems } from '../../components/FormItems';
+import { Input } from '../../components/Input';
+import { Textarea } from '../../components/Textarea';
+import { Segment } from '../../components/Segment';
+import { Alert } from '../../components/Alert';
 import { trpc } from '../../lib/trpc';
-import { useParams } from 'react-router-dom';
-import { ideaParams } from '../../lib/routes';
-import { UpdateIdeaForm } from './UpdateIdeaForm';
-import { useMe } from '../../lib/ctx';
+import { zUpdateIdeaTrpcInput } from '@your-ideas/backend/src/router/updateIdea/input';
+import { Button } from '../../components/Button';
+import { TrpcRouterOutput } from '@your-ideas/backend/src/router';
+import { useNavigate, useParams } from 'react-router-dom';
+import { pick } from 'lodash';
+import { getIdeaRoute, ideaParams } from '../../lib/routes';
+import { useForm } from '../../lib/form';
+import { withPageWrapper } from '../../lib/withPageWrapper';
 
-export const UpdateIdeaPage = () => {
-  const { nick = '' } = useParams<typeof ideaParams>();
+type UpdateIdeaFormProps = {
+  idea: NonNullable<TrpcRouterOutput['getIdea']['idea']>;
+};
 
-  const getIdeaResult = trpc.getIdea.useQuery({ nick });
-  const me = useMe();
+const UpdateIdeaForm = ({ idea }: UpdateIdeaFormProps) => {
+  const navigate = useNavigate();
 
-  if (getIdeaResult.isLoading || getIdeaResult.isFetching) {
-    return (
-      <span>Loading...</span>
-    );
-  }
+  const updateIdea = trpc.updateIdea.useMutation();
 
-  if (getIdeaResult.isError) {
-    return <span>Error: ({getIdeaResult.error.message})</span>
-  }
+  const { formik, buttonProps, alertProps } = useForm({
+    initialValues: pick(idea, ['name', 'nick', 'description', 'text']),
+    validationSchema: zUpdateIdeaTrpcInput.omit({ ideaId: true }),
+    onSubmit: async (data) => {
+      await updateIdea.mutateAsync({ ideaId: idea.id, ...data });
+      navigate(getIdeaRoute({ nick: data.nick }));
+    },
+    resetOnSuccess: false,
+    showValidationAlert: true,
+  });
 
+  return (
+    <Segment title={`Edit idea: ${idea.nick}`}>
+      <form
+        onSubmit={formik.handleSubmit}
+      >
+        <FormItems>
+          <Input name="name" label="Name" formik={formik} />
+          <Input name="nick" label="Nick" formik={formik} />
+          <Input name="description" label="Description" formik={formik} maxWidth={500} />
+          <Textarea name="text" label="Text" formik={formik} />
 
-  if (!getIdeaResult.data.idea) {
-    return <span>idea not found</span>
-  }
+          <Alert {...alertProps} />
 
-  const idea = getIdeaResult.data.idea;
-
-  if (!me) {
-    return <span>only for authorized</span>
-  }
-
-  if (me.id !== idea.authorId) {
-    return <span>not your idea</span>
-  }
-
-  return <UpdateIdeaForm idea={idea} />
+          <Button {...buttonProps}>Update Idea</Button>
+        </FormItems>
+      </form>
+    </Segment>
+  );
 }
+
+export const UpdateIdeaPage = withPageWrapper({
+  authorizedOnly: true,
+  useQuery: () => {
+    const { nick = '' } = useParams<typeof ideaParams>();
+    return trpc.getIdea.useQuery({ nick });
+  },
+  checkExists: ({ queryResult }) => !!queryResult.data.idea,
+  checkExistsMessage: 'Idea not found!',
+  checkAccess: ({ queryResult, ctx }) => !!ctx.me && ctx.me.id === queryResult.data.idea?.authorId,
+  checkAccessMessage: 'Not your idea!',
+  setProps: ({ queryResult }) => ({
+    idea: queryResult.data.idea!
+  }),
+})(UpdateIdeaForm);

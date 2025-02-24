@@ -6,32 +6,15 @@ import s from './IdeaPage.module.scss';
 import { Segment } from '../../components/Segment';
 import { format } from 'date-fns';
 import { LinkButton } from '../../components/Button';
-import { useMe } from '../../lib/ctx';
+import { withPageWrapper } from '../../lib/withPageWrapper';
+import { TrpcRouterOutput } from '@your-ideas/backend/src/router';
 
-export const IdeaPage = () => {
-  const { nick } = useParams<typeof ideaParams>();
+type IdeaComponentProps = {
+  idea: NonNullable<TrpcRouterOutput['getIdea']['idea']>;
+  me: TrpcRouterOutput['getMe']['me'];
+}
 
-  if (!nick) return;
-
-  const getIdeaResult = trpc.getIdea.useQuery({ nick });
-  const me = useMe();
-
-  if (getIdeaResult.isLoading || getIdeaResult.isFetching) {
-    return (
-      <span>Loading...</span>
-    );
-  }
-
-  if (getIdeaResult.isError) {
-    return <span>Error: ({getIdeaResult.error.message})</span>
-  }
-
-  if (!getIdeaResult.data.idea) {
-    return <span>idea not found</span>
-  }
-
-  const idea = getIdeaResult.data.idea;
-
+const IdeaComponent = ({ idea, me }: IdeaComponentProps) => {
   return (
     <Segment title={idea.nick} description={idea.description}>
       <div className={s.createdAt}>Created At: {format(idea.createdAt, 'yyyy-MM-dd')}</div>
@@ -46,3 +29,16 @@ export const IdeaPage = () => {
     </Segment>
   );
 }
+
+export const IdeaPage = withPageWrapper({
+  useQuery: () => {
+    const { nick = '' } = useParams<typeof ideaParams>();
+    return trpc.getIdea.useQuery({ nick });
+  },
+  checkExists: ({ queryResult }) => !!queryResult.data.idea,
+  checkExistsMessage: 'Idea not found',
+  setProps: ({ queryResult, ctx }) => ({
+    idea: queryResult.data.idea!,
+    me: ctx.me,
+  }),
+})(IdeaComponent);

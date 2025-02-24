@@ -3,27 +3,23 @@ import { Input } from '../../components/Input';
 import { Alert } from '../../components/Alert';
 import { Button } from '../../components/Button';
 import { Segment } from '../../components/Segment';
-import { useState } from 'react';
-import { useFormik } from 'formik';
 import { trpc } from '../../lib/trpc';
-import { withZodSchema } from 'formik-validator-zod';
 import { zSignUpTrpcInput } from '@your-ideas/backend/src/router/signUp/input';
 import { z } from 'zod';
 import Cookie from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
 import { getAllIdeasRoute } from '../../lib/routes';
+import { useForm } from '../../lib/form';
 
 export const SignUpPage = () => {
   const navigate = useNavigate();
 
-  const [submittingError, setSubmittingError] = useState<string | null>(null);
-
   const trpcContext = trpc.useContext();
   const signUp = trpc.signUp.useMutation();
 
-  const formik = useFormik({
+  const { formik, buttonProps, alertProps } = useForm({
     initialValues: { nick: '', password: '', passwordAgain: '' },
-    validate: withZodSchema(
+    validationSchema:
       zSignUpTrpcInput
         .extend({
           passwordAgain: z.string().min(1),
@@ -36,24 +32,17 @@ export const SignUpPage = () => {
               path: ['passwordAgain'],
             });
           }
-        })
+        }
     ),
     onSubmit: async (data) => {
-      try {
-        setSubmittingError(null)
-        const { token } = await signUp.mutateAsync(data);
+      const { token } = await signUp.mutateAsync(data);
 
-        Cookie.set('token', token, { expires: 99999 });
-        void trpcContext.invalidate();
+      Cookie.set('token', token, { expires: 99999 });
+      void trpcContext.invalidate();
 
-        navigate(getAllIdeasRoute());
-      }
-      catch (error) {
-        if (error instanceof Object && 'message' in error && typeof error.message === 'string') {
-          setSubmittingError(error.message);
-        }
-      }
+      navigate(getAllIdeasRoute());
     },
+    resetOnSuccess: false,
   });
 
   return (
@@ -65,15 +54,9 @@ export const SignUpPage = () => {
           <Input label="Password" name="password" type="password" formik={formik} />
           <Input label="Password again" name="passwordAgain" type="password" formik={formik} />
 
-          {!formik.isValid && !!formik.submitCount && (
-            <Alert color="red">Некоторые поля с ошибкой</Alert>
-          )}
+          <Alert {...alertProps} />
 
-          {submittingError && (
-            <Alert color="red">{submittingError}</Alert>
-          )}
-
-          <Button loading={formik.isSubmitting}>Sign Up</Button>
+          <Button {...buttonProps}>Sign Up</Button>
         </FormItems>
       </form>
     </Segment>

@@ -2,19 +2,15 @@ import { trpc } from '../../lib/trpc';
 import { useParams } from 'react-router-dom';
 import { ideaParams } from '../../lib/routes';
 import { UpdateIdeaForm } from './UpdateIdeaForm';
+import { useMe } from '../../lib/ctx';
 
 export const UpdateIdeaPage = () => {
   const { nick = '' } = useParams<typeof ideaParams>();
 
   const getIdeaResult = trpc.getIdea.useQuery({ nick });
-  const getMeResult = trpc.getMe.useQuery();
+  const me = useMe();
 
-  if (
-    getIdeaResult.isLoading ||
-    getIdeaResult.isFetching ||
-    getMeResult.isLoading ||
-    getMeResult.isFetching
-  ) {
+  if (getIdeaResult.isLoading || getIdeaResult.isFetching) {
     return (
       <span>Loading...</span>
     );
@@ -24,17 +20,12 @@ export const UpdateIdeaPage = () => {
     return <span>Error: ({getIdeaResult.error.message})</span>
   }
 
-  if (getMeResult.isError) {
-    return <span>Error: ({getMeResult.error.message})</span>
-  }
-
 
   if (!getIdeaResult.data.idea) {
     return <span>idea not found</span>
   }
 
   const idea = getIdeaResult.data.idea;
-  const me = getMeResult.data.me;
 
   if (!me) {
     return <span>only for authorized</span>

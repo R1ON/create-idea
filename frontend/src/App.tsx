@@ -16,25 +16,28 @@ import { SignUpPage } from './screens/SignUpPage/SignUpPage';
 import { SignInPage } from './screens/SignInPage/SignInPage';
 import { SignOutPage } from './screens/SignOutPage/SignOutPage';
 import { UpdateIdeaPage } from './screens/UpdateIdeaPage/UpdateIdeaPage';
+import { AppContextProvider } from './lib/ctx';
 
 
 export const App = () => {
   return (
     <TrpcProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path={getSignOutRoute()} element={<SignOutPage />} />
+      <AppContextProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path={getSignOutRoute()} element={<SignOutPage />} />
 
-          <Route element={<Layout />}>
-            <Route path={getSignUpRoute()} element={<SignUpPage />} />
-            <Route path={getSignInRoute()} element={<SignInPage />} />
-            <Route path={getAllIdeasRoute()} element={<AllIdeasPage />} />
-            <Route path={getNewIdeaRoute()} element={<NewIdeaPage />} />
-            <Route path={getIdeaRoute(ideaParams)} element={<IdeaPage />} />
-            <Route path={getUpdateIdeaRoute(ideaParams)} element={<UpdateIdeaPage />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
+            <Route element={<Layout />}>
+              <Route path={getSignUpRoute()} element={<SignUpPage />} />
+              <Route path={getSignInRoute()} element={<SignInPage />} />
+              <Route path={getAllIdeasRoute()} element={<AllIdeasPage />} />
+              <Route path={getNewIdeaRoute()} element={<NewIdeaPage />} />
+              <Route path={getIdeaRoute(ideaParams)} element={<IdeaPage />} />
+              <Route path={getUpdateIdeaRoute(ideaParams)} element={<UpdateIdeaPage />} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </AppContextProvider>
     </TrpcProvider>
   )
 }

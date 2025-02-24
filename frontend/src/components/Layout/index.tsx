@@ -1,10 +1,10 @@
 import { Link, Outlet } from 'react-router-dom';
 import { getAllIdeasRoute, getNewIdeaRoute, getSignInRoute, getSignOutRoute, getSignUpRoute } from '../../lib/routes';
 import s from './index.module.scss';
-import { trpc } from '../../lib/trpc';
+import { useMe } from '../../lib/ctx';
 
 export const Layout = () => {
-  const { data, isLoading, isFetching, isError } = trpc.getMe.useQuery();
+  const me = useMe();
 
   const renderPublicMenuItems = () => {
     return (
@@ -19,11 +19,7 @@ export const Layout = () => {
   }
 
   const renderPossiblePrivateMenuItems = () => {
-    if (isLoading || isFetching || isError) {
-      return null;
-    }
-
-    if (!!data.me) {
+    if (!!me) {
       return (
         <>
           <li className={s.item}>
@@ -33,7 +29,7 @@ export const Layout = () => {
           </li>
           <li className={s.item}>
             <Link to={getSignOutRoute()} className={s.link}>
-              Sign out ({data.me.nick})
+              Sign out ({me.nick})
             </Link>
           </li>
         </>

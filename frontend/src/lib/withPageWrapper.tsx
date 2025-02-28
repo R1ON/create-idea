@@ -5,6 +5,7 @@ import { Loader } from '../components/Loader'
 import { ErrorPage } from '../components/ErrorPage';
 import { useAppContext, type AppContext } from './ctx'
 import { getAllIdeasRoute } from './routes';
+import { NotFoundPage } from '../screens/NotFoundPage/NotFoundPage';
 
 class CheckExistsError extends Error {}
 const checkExistsFn = <T,>(value: T, message?: string): NonNullable<T> => {
@@ -116,7 +117,7 @@ const PageWrapper = <TProps extends Props = {}, TQueryResult extends QueryResult
   if (checkExists) {
     const notExists = !checkExists(helperProps)
     if (notExists) {
-      return <ErrorPage title={checkExistsTitle} message={checkExistsMessage} />
+      return <NotFoundPage title={checkExistsTitle} message={checkExistsMessage} />
     }
   }
 
@@ -134,7 +135,7 @@ const PageWrapper = <TProps extends Props = {}, TQueryResult extends QueryResult
     )
   } catch (error) {
     if (error instanceof CheckExistsError) {
-      return <ErrorPage title={checkExistsTitle} message={error.message || checkExistsMessage} />
+      return <NotFoundPage title={checkExistsTitle} message={error.message || checkExistsMessage} />
     }
     if (error instanceof CheckAccessError) {
       return <ErrorPage title={checkAccessTitle} message={error.message || checkAccessMessage} />

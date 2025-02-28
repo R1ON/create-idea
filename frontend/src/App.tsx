@@ -17,6 +17,7 @@ import { SignInPage } from './screens/SignInPage/SignInPage';
 import { SignOutPage } from './screens/SignOutPage/SignOutPage';
 import { UpdateIdeaPage } from './screens/UpdateIdeaPage/UpdateIdeaPage';
 import { AppContextProvider } from './lib/ctx';
+import { NotFoundPage } from './screens/NotFoundPage/NotFoundPage';
 
 
 export const App = () => {
@@ -34,6 +35,7 @@ export const App = () => {
               <Route path={getNewIdeaRoute()} element={<NewIdeaPage />} />
               <Route path={getIdeaRoute(ideaParams)} element={<IdeaPage />} />
               <Route path={getUpdateIdeaRoute(ideaParams)} element={<UpdateIdeaPage />} />
+              <Route path="*" element={<NotFoundPage />} />
             </Route>
           </Routes>
         </BrowserRouter>

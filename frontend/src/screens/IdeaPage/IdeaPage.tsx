@@ -7,14 +7,8 @@ import { Segment } from '../../components/Segment';
 import { format } from 'date-fns';
 import { LinkButton } from '../../components/Button';
 import { withPageWrapper } from '../../lib/withPageWrapper';
-import { TrpcRouterOutput } from '@your-ideas/backend/src/router';
 
-type IdeaComponentProps = {
-  idea: NonNullable<TrpcRouterOutput['getIdea']['idea']>;
-  me: TrpcRouterOutput['getMe']['me'];
-}
-
-const IdeaComponent = ({ idea, me }: IdeaComponentProps) => {
+const IdeaComponent: Parameters<typeof pageWrapper>[0] = ({ idea, me }) => {
   return (
     <Segment title={idea.nick} description={idea.description}>
       <div className={s.createdAt}>Created At: {format(idea.createdAt, 'yyyy-MM-dd')}</div>
@@ -30,15 +24,15 @@ const IdeaComponent = ({ idea, me }: IdeaComponentProps) => {
   );
 }
 
-export const IdeaPage = withPageWrapper({
+const pageWrapper = withPageWrapper({
   useQuery: () => {
     const { nick = '' } = useParams<typeof ideaParams>();
     return trpc.getIdea.useQuery({ nick });
   },
-  checkExists: ({ queryResult }) => !!queryResult.data.idea,
-  checkExistsMessage: 'Idea not found',
-  setProps: ({ queryResult, ctx }) => ({
-    idea: queryResult.data.idea!,
+  setProps: ({ queryResult, ctx, checkExists }) => ({
+    idea: checkExists(queryResult.data.idea),
     me: ctx.me,
   }),
-})(IdeaComponent);
+});
+
+export const IdeaPage = pageWrapper(IdeaComponent);

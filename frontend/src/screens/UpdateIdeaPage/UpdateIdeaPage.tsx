@@ -6,18 +6,13 @@ import { Alert } from '../../components/Alert';
 import { trpc } from '../../lib/trpc';
 import { zUpdateIdeaTrpcInput } from '@your-ideas/backend/src/router/updateIdea/input';
 import { Button } from '../../components/Button';
-import { TrpcRouterOutput } from '@your-ideas/backend/src/router';
 import { useNavigate, useParams } from 'react-router-dom';
 import { pick } from 'lodash';
 import { getIdeaRoute, ideaParams } from '../../lib/routes';
 import { useForm } from '../../lib/form';
 import { withPageWrapper } from '../../lib/withPageWrapper';
 
-type UpdateIdeaFormProps = {
-  idea: NonNullable<TrpcRouterOutput['getIdea']['idea']>;
-};
-
-const UpdateIdeaForm = ({ idea }: UpdateIdeaFormProps) => {
+const UpdateIdeaForm: Parameters<typeof pageWrapper>[0] = ({ idea }) => {
   const navigate = useNavigate();
 
   const updateIdea = trpc.updateIdea.useMutation();
@@ -53,17 +48,18 @@ const UpdateIdeaForm = ({ idea }: UpdateIdeaFormProps) => {
   );
 }
 
-export const UpdateIdeaPage = withPageWrapper({
+const pageWrapper = withPageWrapper({
   authorizedOnly: true,
   useQuery: () => {
     const { nick = '' } = useParams<typeof ideaParams>();
     return trpc.getIdea.useQuery({ nick });
   },
-  checkExists: ({ queryResult }) => !!queryResult.data.idea,
-  checkExistsMessage: 'Idea not found!',
-  checkAccess: ({ queryResult, ctx }) => !!ctx.me && ctx.me.id === queryResult.data.idea?.authorId,
-  checkAccessMessage: 'Not your idea!',
-  setProps: ({ queryResult }) => ({
-    idea: queryResult.data.idea!
-  }),
-})(UpdateIdeaForm);
+  setProps: ({ ctx, queryResult, checkExists, checkAccess }) => {
+    const idea = checkExists(queryResult.data.idea, 'Idea not found!');
+    checkAccess(!!ctx.me && ctx.me.id === queryResult.data.idea?.authorId, 'Not your idea!');
+
+    return { idea };
+  },
+});
+
+export const UpdateIdeaPage = pageWrapper(UpdateIdeaForm);

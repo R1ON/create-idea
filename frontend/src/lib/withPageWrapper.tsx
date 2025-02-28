@@ -34,7 +34,8 @@ type HelperProps<TQueryResult extends QueryResult | undefined> = {
 type SetPropsProps<TQueryResult extends QueryResult | undefined> = HelperProps<TQueryResult> & {
   checkExists: typeof checkExistsFn
   checkAccess: typeof checkAccessFn
-  getAuthorizedMe: (message?: string) => NonNullable<AppContext['me']>
+  // TODO: потом
+  // getAuthorizedMe: (message?: string) => NonNullable<AppContext['me']>
 }
 type PageWrapperProps<TProps extends Props, TQueryResult extends QueryResult | undefined> = {
   redirectAuthorized?: boolean
@@ -119,15 +120,31 @@ const PageWrapper = <TProps extends Props = {}, TQueryResult extends QueryResult
     }
   }
 
-  // TODO: убрпать, когда дойдет до checkExists, checkAccess, getAuthorizedMe
-  // @ts-ignore
-  const props = setProps?.(helperProps) as TProps;
+  try {
+    const props = setProps?.({
+      ...helperProps,
+      checkExists: checkExistsFn,
+      checkAccess: checkAccessFn,
+    }) as TProps
 
-  return (
-    <>
-      <Page {...props} />
-    </>
-  );
+    return (
+      <>
+        <Page {...props} />
+      </>
+    )
+  } catch (error) {
+    if (error instanceof CheckExistsError) {
+      return <ErrorPage title={checkExistsTitle} message={error.message || checkExistsMessage} />
+    }
+    if (error instanceof CheckAccessError) {
+      return <ErrorPage title={checkAccessTitle} message={error.message || checkAccessMessage} />
+    }
+    // TODO: потом
+    // if (error instanceof GetAuthorizedMeError) {
+    //   return <ErrorPage title={authorizedOnlyTitle} message={error.message || authorizedOnlyMessage} />
+    // }
+    throw error
+  }
 }
 
 export const withPageWrapper = <TProps extends Props = {}, TQueryResult extends QueryResult | undefined = undefined>(

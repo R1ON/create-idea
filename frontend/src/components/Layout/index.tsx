@@ -1,3 +1,4 @@
+import { createRef } from 'react';
 import { Link, Outlet } from 'react-router-dom';
 import {
   getAllIdeasRoute,
@@ -7,8 +8,10 @@ import {
   getSignUpRoute,
   getUpdateProfileRoute
 } from '../../lib/routes';
-import s from './index.module.scss';
 import { useMe } from '../../lib/ctx';
+import s from './index.module.scss';
+
+export const layoutContainerRef = createRef<HTMLDivElement>();
 
 export const Layout = () => {
   const me = useMe();
@@ -76,7 +79,7 @@ export const Layout = () => {
         </ul>
       </div>
 
-      <div className={s.content}>
+      <div className={s.content} ref={layoutContainerRef}>
         <Outlet />
       </div>
     </div>

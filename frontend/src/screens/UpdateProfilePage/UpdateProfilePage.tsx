@@ -72,8 +72,8 @@ const General: Parameters<typeof pageWrapper>[0] = ({ me }) => {
 
 const pageWrapper = withPageWrapper({
   authorizedOnly: true,
-  setProps: ({ ctx }) => ({
-    me: ctx.me!,
+  setProps: ({ getAuthorizedMe }) => ({
+    me: getAuthorizedMe(),
   }),
 });
 

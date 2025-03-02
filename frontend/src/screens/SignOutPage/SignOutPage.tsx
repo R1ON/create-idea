@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import Cookie from 'js-cookie';
 import { trpc } from '../../lib/trpc';
 import { getSignInRoute } from '../../lib/routes';
+import { Loader } from '../../components/Loader';
 
 export const SignOutPage = () => {
   const navigate = useNavigate();
@@ -16,5 +17,5 @@ export const SignOutPage = () => {
     });
   }, []);
 
-  return <p>Загрузка...</p>;
+  return <Loader type="page" />;
 }

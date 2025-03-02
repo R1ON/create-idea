@@ -7,6 +7,7 @@ import { Alert } from '../../components/Alert';
 
 import s from './AllIdeasPage.module.scss';
 import { layoutContainerRef } from '../../components/Layout';
+import { Loader } from '../../components/Loader';
 
 export const AllIdeasPage = () => {
     const {
@@ -20,7 +21,7 @@ export const AllIdeasPage = () => {
 
     const renderContent = () => {
         if (isLoading || isRefetching) {
-            return <div>loading...</div>;
+            return <Loader type="section" />;
         }
 
         if (isError) {
@@ -38,7 +39,7 @@ export const AllIdeasPage = () => {
                   }
                 }}
                 loader={(
-                  <div key="loader">loading...</div>
+                  <div key="loader"><Loader type="section" /></div>
                 )}
                 getScrollParent={() => layoutContainerRef.current}
                 useWindow={

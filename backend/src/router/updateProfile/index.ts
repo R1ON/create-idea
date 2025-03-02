@@ -31,3 +31,4 @@ export const updateProfileTrpcRoute = trpc.procedure.input(
 
   return toClientMe(updatedMe);
 });
+

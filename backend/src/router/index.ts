@@ -1,3 +1,4 @@
+import { inferRouterInputs, inferRouterOutputs } from '@trpc/server';
 import { trpc } from '../lib/trpc';
 import { getIdeasTrpcRoute } from './getAllIdeas';
 import { getIdeaTrpcRoute } from './getIdea';
@@ -6,7 +7,7 @@ import { signUpTrpcRoute } from './signUp';
 import { signInTrpcRoute } from './signIn';
 import { getMeTrpcRoute } from './getMe/getMe';
 import { updateIdeaTrpcRoute } from './updateIdea';
-import { inferRouterInputs, inferRouterOutputs } from '@trpc/server';
+import { updateProfileTrpcRoute } from './updateProfile';
 
 export const trpcRouter = trpc.router({
     getIdeas: getIdeasTrpcRoute,
@@ -16,6 +17,7 @@ export const trpcRouter = trpc.router({
     updateIdea: updateIdeaTrpcRoute,
     signUp: signUpTrpcRoute,
     signIn: signInTrpcRoute,
+    updateProfile: updateProfileTrpcRoute,
 });
 
 export type TrpcRouter = typeof trpcRouter;

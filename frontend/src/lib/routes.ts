@@ -13,3 +13,5 @@ export const getUpdateIdeaRoute = ({ nick }: typeof ideaParams) => (
 export const getSignUpRoute = () => '/sign-up';
 export const getSignInRoute = () => '/sign-in';
 export const getSignOutRoute = () => '/sign-out';
+
+export const getUpdateProfileRoute = () => '/update-profile';

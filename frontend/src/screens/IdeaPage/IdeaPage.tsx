@@ -13,6 +13,13 @@ const IdeaComponent: Parameters<typeof pageWrapper>[0] = ({ idea, me }) => {
     <Segment title={idea.nick} description={idea.description}>
       <div className={s.createdAt}>Created At: {format(idea.createdAt, 'yyyy-MM-dd')}</div>
       <div className={s.author}>Author: {idea.author.nick}</div>
+
+      {idea.author.name && (
+        <div className={s.author}>
+          Name: {idea.author.name}
+        </div>
+      )}
+
       <div className={s.text} dangerouslySetInnerHTML={{ __html: idea.text }} />
 
       {me?.id === idea.authorId && (

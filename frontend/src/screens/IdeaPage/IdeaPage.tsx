@@ -7,6 +7,7 @@ import { Segment } from '../../components/Segment';
 import { format } from 'date-fns';
 import { LinkButton } from '../../components/Button';
 import { withPageWrapper } from '../../lib/withPageWrapper';
+import { LikeButton } from './LikeButton';
 
 const IdeaComponent: Parameters<typeof pageWrapper>[0] = ({ idea, me }) => {
   return (
@@ -22,6 +23,17 @@ const IdeaComponent: Parameters<typeof pageWrapper>[0] = ({ idea, me }) => {
 
       <div className={s.text} dangerouslySetInnerHTML={{ __html: idea.text }} />
 
+      <div className={s.likes}>
+        Likes: {idea.likesCount}
+
+        {me && (
+          <>
+            <br/>
+            <LikeButton idea={idea} />
+          </>
+        )}
+      </div>
+
       {me?.id === idea.authorId && (
         <div className={s.editButton}>
           <LinkButton to={getUpdateIdeaRoute({ nick: idea.nick })}>Edit idea</LinkButton>
@@ -32,6 +44,7 @@ const IdeaComponent: Parameters<typeof pageWrapper>[0] = ({ idea, me }) => {
 }
 
 const pageWrapper = withPageWrapper({
+  showLoaderOnFetching: false,
   useQuery: () => {
     const { nick = '' } = useParams<typeof ideaParams>();
     return trpc.getIdea.useQuery({ nick });

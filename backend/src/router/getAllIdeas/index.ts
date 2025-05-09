@@ -5,6 +5,10 @@ import { omit } from 'lodash';
 export const getIdeasTrpcRoute = trpc.procedure.input(
   zGetAllIdeasTrpcInput
 ).query(async ({ ctx, input }) => {
+  const normalizedSearch = input.search
+    ? input.search.trim().replace(/[\s\n\t]/g, ' & ')
+    : undefined;
+
   const rawIdeas = await ctx.prisma.idea.findMany({
     select: {
       id: true,
@@ -21,6 +25,13 @@ export const getIdeasTrpcRoute = trpc.procedure.input(
     orderBy: [{ createdAt: 'desc' }, { serialNumber: 'desc' }],
     cursor: input.cursor ? { serialNumber: input.cursor } : undefined,
     take: input.limit + 1,
+    where: !normalizedSearch ? undefined : {
+      OR: [{
+        name: { search: normalizedSearch },
+        description: { search: normalizedSearch },
+        text: { search: normalizedSearch },
+      }]
+    },
   });
 
   const nextIdea = rawIdeas.at(input.limit);

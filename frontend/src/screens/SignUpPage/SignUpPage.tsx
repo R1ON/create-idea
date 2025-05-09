@@ -15,7 +15,7 @@ const SignUpForm = () => {
   const signUp = trpc.signUp.useMutation();
 
   const { formik, buttonProps, alertProps } = useForm({
-    initialValues: { nick: '', password: '', passwordAgain: '' },
+    initialValues: { nick: '', password: '', email: '', passwordAgain: '' },
     validationSchema:
       zSignUpTrpcInput
         .extend({
@@ -45,7 +45,7 @@ const SignUpForm = () => {
       <form onSubmit={formik.handleSubmit}>
         <FormItems>
           <Input label="Nick" name="nick" formik={formik} />
-          {/*<Input label="E-mail" name="email" formik={formik} />*/}
+          <Input label="E-mail" name="email" formik={formik} />
           <Input label="Password" name="password" type="password" formik={formik} />
           <Input label="Password again" name="passwordAgain" type="password" formik={formik} />
 

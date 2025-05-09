@@ -33,6 +33,10 @@ export const getIdeaTrpcRoute = trpc.procedure.input(
     },
   });
 
+  if (rawIdea?.blockedAt) {
+    throw new Error('Idea is blocked by admin');
+  }
+
   const isLikedByMe = !!rawIdea?.ideasLikes.length;
   const likesCount = rawIdea?._count.ideasLikes || 0;
 

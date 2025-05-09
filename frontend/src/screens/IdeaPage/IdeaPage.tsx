@@ -5,9 +5,37 @@ import { trpc } from '../../lib/trpc';
 import s from './IdeaPage.module.scss';
 import { Segment } from '../../components/Segment';
 import { format } from 'date-fns';
-import { LinkButton } from '../../components/Button';
+import { Button, LinkButton } from '../../components/Button';
 import { withPageWrapper } from '../../lib/withPageWrapper';
 import { LikeButton } from './LikeButton';
+import { canBlockIdeas, canEditIdea } from '@your-ideas/backend/src/utils/can.ts';
+import { TrpcRouterOutput } from '@your-ideas/backend/src/router';
+import { useForm } from '../../lib/form.ts';
+import { FormItems } from '../../components/FormItems';
+import { Alert } from '../../components/Alert';
+
+const BlockIdea = ({ idea }: { idea: NonNullable<TrpcRouterOutput['getIdea']['idea']> }) => {
+  const blockIdea = trpc.blockIdea.useMutation();
+  const trpcUtils = trpc.useContext();
+
+  const { formik, alertProps, buttonProps } = useForm({
+    onSubmit: async () => {
+      await blockIdea.mutateAsync({ ideaId: idea.id })
+      await trpcUtils.getIdea.refetch({ nick: idea.nick })
+    },
+  })
+
+  return (
+    <form onSubmit={formik.handleSubmit}>
+      <FormItems>
+        <Alert {...alertProps} />
+        <Button color="red" {...buttonProps}>
+          Block Idea
+        </Button>
+      </FormItems>
+    </form>
+  )
+}
 
 const IdeaComponent: Parameters<typeof pageWrapper>[0] = ({ idea, me }) => {
   return (
@@ -34,9 +62,15 @@ const IdeaComponent: Parameters<typeof pageWrapper>[0] = ({ idea, me }) => {
         )}
       </div>
 
-      {me?.id === idea.authorId && (
+      {canEditIdea(me, idea) && (
         <div className={s.editButton}>
           <LinkButton to={getUpdateIdeaRoute({ nick: idea.nick })}>Edit idea</LinkButton>
+        </div>
+      )}
+
+      {canBlockIdeas(me) && (
+        <div className={s.blockIdea}>
+          <BlockIdea idea={idea} />
         </div>
       )}
     </Segment>

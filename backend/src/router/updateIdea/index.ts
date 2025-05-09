@@ -1,5 +1,6 @@
 import { trpc } from '../../lib/trpc';
 import { zUpdateIdeaTrpcInput } from './input';
+import { canEditIdea } from '../../utils/can';
 
 export const updateIdeaTrpcRoute = trpc.procedure.input(
   zUpdateIdeaTrpcInput
@@ -20,7 +21,7 @@ export const updateIdeaTrpcRoute = trpc.procedure.input(
     throw new Error('Not found');
   }
 
-  if (ctx.me.id !== foundIdea.authorId) {
+  if (!canEditIdea(ctx.me, foundIdea)) {
     throw new Error('Not your idea');
   }
 

@@ -11,6 +11,7 @@ import { pick } from 'lodash';
 import { getIdeaRoute, ideaParams } from '../../lib/routes';
 import { useForm } from '../../lib/form';
 import { withPageWrapper } from '../../lib/withPageWrapper';
+import { canEditIdea } from '@your-ideas/backend/src/utils/can.ts';
 
 const UpdateIdeaForm: Parameters<typeof pageWrapper>[0] = ({ idea }) => {
   const navigate = useNavigate();
@@ -56,7 +57,7 @@ const pageWrapper = withPageWrapper({
   },
   setProps: ({ ctx, queryResult, checkExists, checkAccess }) => {
     const idea = checkExists(queryResult.data.idea, 'Idea not found!');
-    checkAccess(!!ctx.me && ctx.me.id === queryResult.data.idea?.authorId, 'Not your idea!');
+    checkAccess(canEditIdea(ctx.me, idea), 'Not your idea!');
 
     return { idea };
   },

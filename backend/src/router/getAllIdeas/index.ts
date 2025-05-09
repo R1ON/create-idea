@@ -25,12 +25,15 @@ export const getIdeasTrpcRoute = trpc.procedure.input(
     orderBy: [{ createdAt: 'desc' }, { serialNumber: 'desc' }],
     cursor: input.cursor ? { serialNumber: input.cursor } : undefined,
     take: input.limit + 1,
-    where: !normalizedSearch ? undefined : {
-      OR: [{
-        name: { search: normalizedSearch },
-        description: { search: normalizedSearch },
-        text: { search: normalizedSearch },
-      }]
+    where: {
+      blockedAt: null,
+      ...(!normalizedSearch ? {} : {
+        OR: [{
+          name: { search: normalizedSearch },
+          description: { search: normalizedSearch },
+          text: { search: normalizedSearch },
+        }]
+      })
     },
   });
 

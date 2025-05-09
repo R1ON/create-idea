@@ -1,6 +1,7 @@
 import { trpc } from '../../lib/trpc';
 import { zBlockIdeaTrpcInput } from './input';
 import { canBlockIdeas } from '../../utils/can';
+import { sendIdeaBlockedEmail } from '../../lib/emails';
 
 export const blockIdeaTrpcRouter = trpc.procedure.input(
   zBlockIdeaTrpcInput
@@ -11,19 +12,29 @@ export const blockIdeaTrpcRouter = trpc.procedure.input(
     throw new Error('PERMISSION_DENIED');
   }
 
-  const updatedIdea = await ctx.prisma.idea.updateMany({
+  const idea = await ctx.prisma.idea.findUnique({
     where: {
       id: ideaId,
-      blockedAt: null,
+    },
+    include: {
+      author: true,
+    },
+  });
+
+  if (!idea) {
+    throw new Error('NOT_FOUND');
+  }
+
+  await ctx.prisma.idea.update({
+    where: {
+      id: ideaId,
     },
     data: {
       blockedAt: new Date(),
     }
   });
 
-  if (updatedIdea.count === 0) {
-    throw new Error('NOT_FOUND');
-  }
+  void sendIdeaBlockedEmail({ user: idea.author, idea });
 
   return true;
 });

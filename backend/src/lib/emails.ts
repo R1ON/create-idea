@@ -5,6 +5,7 @@ import fs from 'fs/promises';
 import { env } from './env';
 import { Idea, User } from '@prisma/client';
 import handlebars from 'handlebars';
+import { sendEmailThroughBrevo } from './brevo';
 
 
 const getHbrTemplates = memoize(async () => {
@@ -51,11 +52,13 @@ const sendEmail = async ({
       homeUrl: env.WEBAPP_URL,
     };
 
-    const htmlTemplate = await getEmailHtml(templateName, fullTemplateVariables);
+    const html = await getEmailHtml(templateName, fullTemplateVariables);
+
+    const { loggableResponse } = await sendEmailThroughBrevo({ to, subject, html });
 
 
     console.info('sendEmail', {
-      to, subject, templateName, fullTemplateVariables, htmlTemplate
+      to, subject, templateName, fullTemplateVariables, loggableResponse
     });
 
     return { ok: true };
